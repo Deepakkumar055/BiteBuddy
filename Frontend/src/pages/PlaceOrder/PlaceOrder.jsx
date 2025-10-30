@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import './PlaceOrder.css'
-import { StoreContext } from '../../context/storeContext';
+import { StoreContext } from '../../context/StoreContext';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
@@ -72,7 +72,7 @@ const PlaceOrder = () => {
     }
 
 
-  }, [token]);
+  }, [token, navigate, getTotalcartAmount]);
 
 
   return (

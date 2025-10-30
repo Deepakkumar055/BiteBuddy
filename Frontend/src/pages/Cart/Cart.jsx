@@ -1,12 +1,20 @@
 import React, { useContext } from 'react'
 import './Cart.css'
-import { StoreContext } from '../../context/storeContext';
+import { StoreContext } from '../../context/StoreContext';
 import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
-    const {cartItems, food_list, removeFromCart,getTotalcartAmount} = useContext(StoreContext);
+    const {cartItems, food_list, removeFromCart,getTotalcartAmount, token} = useContext(StoreContext);
 
     const navigate = useNavigate();
+    
+    const handleCheckout = () => {
+        if (!token) {
+            alert("Please login to proceed to checkout");
+            return;
+        }
+        navigate('/order');
+    };
   return (
 
    
@@ -67,7 +75,7 @@ const Cart = () => {
 
             
           </div>
-          <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button>
+          <button onClick={handleCheckout}>PROCEED TO CHECKOUT</button>
         </div>
 
        </div>

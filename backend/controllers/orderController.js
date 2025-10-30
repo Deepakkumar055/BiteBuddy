@@ -15,10 +15,7 @@ const placeOrder = async (req, res) => {
             userId: req.body.userId,
             items: req.body.items,
             amount: req.body.amount,
-            address: req.body.address,
-            status: req.body.status,
-            payment: req.body.payment,  
-            phone: req.body.phone
+            address: req.body.address
         });
         await newOrder.save();
         await userModel.findByIdAndUpdate(req.body.userId, {cartData: {}});
@@ -30,7 +27,7 @@ const placeOrder = async (req, res) => {
                 name: item.name,
                 
             },
-            unit_amount: item.price * 100*80
+            unit_amount: item.price * 100
         },
         quantity: item.quantity
         }));
@@ -41,7 +38,7 @@ const placeOrder = async (req, res) => {
                     name: "Delivery Charges",
                     
                 },
-                unit_amount: 2*100*80
+                unit_amount: 2*100
             },
             quantity: 1
 
@@ -72,9 +69,7 @@ const verifyOrder = async (req, res) => {
   
 
     if (success == "true") {
-     await orderModel.findByIdAndUpdate(orderId,{payment:true});
-        order.status = "placed";
-        await order.save();
+     await orderModel.findByIdAndUpdate(orderId,{payment:true, status: "placed"});
         res.json({success: true, message: "Paid"});
     } else {
         const order = await orderModel.findByIdAndDelete(orderId);
@@ -83,7 +78,7 @@ const verifyOrder = async (req, res) => {
     }
     
   } catch (error) {
-    cosnole.log(error);
+    console.log(error);
     res.json({success: false, message: error.message});
   }
 }

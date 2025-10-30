@@ -18,10 +18,11 @@ const url = 'http://localhost:4000';
 
 
 const addToCart = async(itemId) => {
-  if(!cartItems[itemId]) {
-    setCartItem((prev) => ({...prev, [itemId]:1}))
+  const currentCart = cartItems || {};
+  if(!currentCart[itemId]) {
+    setCartItem((prev) => ({...prev || {}, [itemId]:1}))
 }else{
-  setCartItem((prev) => ({...prev, [itemId]:prev[itemId]+1}))
+  setCartItem((prev) => ({...prev || {}, [itemId]:(prev[itemId] || 0)+1}))
 }
 if(token){
   await axios.post(`${url}/api/cart/add`, {itemId},{headers:{token}})
@@ -29,7 +30,10 @@ if(token){
 }
 
 const removeFromCart = async(itemId) => {
-  setCartItem((prev) => ({...prev, [itemId]:prev[itemId]-1}))
+  setCartItem((prev) => {
+    const currentCart = prev || {};
+    return {...currentCart, [itemId]:Math.max((currentCart[itemId] || 0)-1, 0)};
+  })
   if(token){
     await axios.post(`${url}/api/cart/remove`, {itemId},{headers:{token}})
   }
@@ -37,14 +41,15 @@ const removeFromCart = async(itemId) => {
 
 const  getTotalcartAmount = (itemid)=>{
   let totalAmount = 0;
-  for(let item in cartItems){
-    if(cartItems[item] > 0){
+  const currentCart = cartItems || {};
+  for(let item in currentCart){
+    if(currentCart[item] > 0){
       let iteminfo= food_list.find((product) => product._id === item);
-      totalAmount += (iteminfo.price * cartItems[item]); 
+      if(iteminfo){
+        totalAmount += (iteminfo.price * currentCart[item]); 
+      }
     }
-  
-
-}
+  }
 
 return totalAmount;
 }
@@ -59,8 +64,13 @@ setFoodList(response.data.data)
 
 const loadCartData = async (token) => {
   if (token) {
-    const response = await axios.get(`${url}/api/cart/list`, { headers: { token } });
-    setCartItem(response.data.cartData);
+    try {
+      const response = await axios.get(`${url}/api/cart/list`, { headers: { token } });
+      setCartItem(response.data.cartData || {});
+    } catch (error) {
+      console.error("Error loading cart data:", error);
+      setCartItem({});
+    }
   }
 }
 
@@ -76,6 +86,12 @@ useEffect(() => {
   }
   loadData()
 }, []);
+
+useEffect(() => {
+  if (token) {
+    loadCartData(token);
+  }
+}, [token]);
 
 
 
